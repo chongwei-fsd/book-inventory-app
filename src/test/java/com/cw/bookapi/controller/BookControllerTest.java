@@ -14,10 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
@@ -75,12 +72,11 @@ class BookControllerTest {
                 .andDo(print())
                 .andExpect(jsonPath("$.size()", is(bookList.size())));
 
-         for (int i = 0; i < bookList.size(); i++) {
+        for (int i = 0; i < bookList.size(); i++) {
             resultActions.andExpect(jsonPath(String.format("$[%d].author", i)).value(bookList.get(i).getAuthor()));
             resultActions.andExpect(jsonPath(String.format("$[%d].title", i)).value(bookList.get(i).getTitle()));
         }
     }
-
 
     @Test
     void createBook() throws Exception {
@@ -97,6 +93,7 @@ class BookControllerTest {
                 .andExpect(jsonPath("$.title").value(book1.getTitle()))
                 .andExpect(result -> assertNotNull(result.getResponse().getContentAsString())); //not null
     }
+
 
     @Test
     void updateBookById() throws Exception {
@@ -132,7 +129,7 @@ class BookControllerTest {
                 .andDo(print())
                 .andExpect(result -> assertEquals(expectedResponse, result.getResponse().getContentAsString()));
 
-                for (int i = 0; i < bookList.size(); i++) {
+        for (int i = 0; i < bookList.size(); i++) {
             boolean exists = bookRepo.existsById(bookList.get(i).getId()); // check book1 deleted in repo
             if (bookList.get(i).getId().equals(deleteBook1.getId())) {
                 assertFalse(exists, deleteBook1.getTitle()+" not deleted");
@@ -154,9 +151,28 @@ class BookControllerTest {
                 .andExpect(result -> assertNotNull(result.getResponse().getContentAsString())); //not null
     }
 
+    @Test
+    void countBooks() throws Exception {
+        bookRepo.saveAll(bookList);
+        long count = bookRepo.count();
+
+        Map<String,Object>CountObj=new HashMap<>();
+        CountObj.put("total",count);
+
+        String countString=objectMapper.writeValueAsString(CountObj);
+
+        ResultActions resultActions = mockMvc.perform(get(API_ENDPOINT.concat("/count")));
+
+
+        resultActions.andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(result -> assertEquals(countString, result.getResponse().getContentAsString()));
+
+    }
+
 
     @Test
-    void countTotalBooks() throws Exception {
+    void getResourceNotFoundException() throws Exception {
         bookRepo.saveAll(bookList);
         Long erroneousId = 1000L;
 
