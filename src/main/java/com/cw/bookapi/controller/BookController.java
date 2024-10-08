@@ -21,30 +21,28 @@ public class BookController {
     BookService bookService;
 
     @GetMapping
-    public ResponseEntity<Object> allBooks(){
-        List<Book> bookList=bookService.findAll();
-        if(bookList.isEmpty()){
+    public ResponseEntity<Object> allBooks() {
+        List<Book> bookList = bookService.findAll();
+        if (bookList.isEmpty()) {
             throw new ResourceNotFoundException();
         }
-        return new  ResponseEntity<> (bookList, HttpStatus.OK);
+        return new ResponseEntity<>(bookList, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getBookById(@PathVariable("id") Long bookId){
-        Book book = bookService.findById(bookId).orElseThrow(()->new ResourceNotFoundException());
-        return new  ResponseEntity<> (book, HttpStatus.OK);
+    public ResponseEntity<Object> getBookById(@PathVariable("id") Long bookId) {
+        Book book = bookService.findById(bookId).orElseThrow(() -> new ResourceNotFoundException());
+        return new ResponseEntity<>(book, HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<Object> createBook(@RequestBody @Valid Book book){
-        if (bookService.existsByTitle(book.getTitle())) {
-            return new ResponseEntity<>("Book already exists", HttpStatus.CONFLICT);
-        }
         return new ResponseEntity<>(bookService.save(book), HttpStatus.CREATED);
     }
 
+
     @PutMapping("/{id}")
-    public ResponseEntity<Object> updateBookById(@PathVariable("id") Long bookId, @RequestBody @Valid Book book){
+    public ResponseEntity<Object> updateBookById(@PathVariable("id") Long bookId, @RequestBody @Valid Book book) {
         Book updateBook = bookService.findById(bookId).map(b -> {
             b.setAuthor(book.getAuthor());
             b.setTitle(book.getTitle());
@@ -54,9 +52,9 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteBookById (@PathVariable("id")Long bookId){
+    public ResponseEntity<Object> deleteBookById(@PathVariable("id") Long bookId) {
 
-        Book deleteBook = bookService.findById(bookId).map(b->{
+        Book deleteBook = bookService.findById(bookId).map(b -> {
             bookService.deleteById(b.getId());
             return b;
         }).orElseThrow(ResourceNotFoundException::new);
@@ -67,11 +65,11 @@ public class BookController {
     }
 
     @GetMapping("/count")
-    public ResponseEntity<Object> countTotalBooks (){
+    public ResponseEntity<Object> countTotalBooks() {
 
         long count = bookService.count();
 
-        if(count <= 0)
+        if (count <= 0)
             return new ResponseEntity<>("No book found.", HttpStatus.NOT_FOUND);
 
         Map<String, Object> totalBooks = new HashMap<String, Object>();
