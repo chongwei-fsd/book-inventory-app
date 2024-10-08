@@ -75,10 +75,9 @@ class BookControllerTest {
                 .andDo(print())
                 .andExpect(jsonPath("$.size()", is(bookList.size())));
 
-        // check if 'title' and 'author'  exist
-        for (int i = 0; i < bookList.size(); i++) {
-            resultActions.andExpect(jsonPath(String.format("$[%d].title", i)).exists())
-                    .andExpect(jsonPath(String.format("$[%d].author", i)).exists());
+         for (int i = 0; i < bookList.size(); i++) {
+            resultActions.andExpect(jsonPath(String.format("$[%d].author", i)).value(bookList.get(i).getAuthor()));
+            resultActions.andExpect(jsonPath(String.format("$[%d].title", i)).value(bookList.get(i).getTitle()));
         }
     }
 
