@@ -37,6 +37,9 @@ public class BookController {
 
     @PostMapping
     public ResponseEntity<Object> createBook(@RequestBody @Valid Book book){
+        if (bookService.existsByTitle(book.getTitle())) {
+            return new ResponseEntity<>("Book already exists", HttpStatus.CONFLICT);
+        }
         return new ResponseEntity<>(bookService.save(book), HttpStatus.CREATED);
     }
 
