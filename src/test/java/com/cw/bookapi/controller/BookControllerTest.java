@@ -131,6 +131,15 @@ class BookControllerTest {
         resultActions.andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(result -> assertEquals(expectedResponse, result.getResponse().getContentAsString()));
+
+                for (int i = 0; i < bookList.size(); i++) {
+            boolean exists = bookRepo.existsById(bookList.get(i).getId()); // check book1 deleted in repo
+            if (bookList.get(i).getId().equals(deleteBook1.getId())) {
+                assertFalse(exists, deleteBook1.getTitle()+" not deleted");
+            } else {
+                assertTrue(exists, deleteBook1.getTitle()+" has been deleted");
+            }
+        }
     }
 
     @Test
